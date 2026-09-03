@@ -201,51 +201,51 @@ Acessar: `http://localhost:4200`
 ### 5.1. Via Docker (Completo)
 
 ```
-┌─────────────────────────────────────┐
-│         DOCKER COMPOSE              │
-├─────────────────────────────────────┤
-│  ┌─────────────────────────────────┐│
-│  │    FRONTEND (Angular 19)        ││
-│  │  Porto: 4200 │ Material Design      ││
-│  └───────────────┬───────────────────┘│
-│                  │  HTTP               │
+┌──────────────────────────────────────────┐
+│              DOCKER COMPOSE              │
+├──────────────────────────────────────────┤
+│  ┌──────────────────────────────────────┐│
+│  │    FRONTEND (Angular 19)             ││
+│  │  Porto: 4200 │ Material Design       ││
+│  └───────────────┬──────────────────────┘│
+│                  │  HTTP                 │
 │                  ▼                       │
 │   ┌───────────────┴─────────────────────┐│
 │   │  SHARED DOCKER NETWORK              ││
 │   └───────────────┬─────────────────────┘│
-│                  │                       │
-│  SQL Queries    │  REST API (HTTP)    │
-│                  ▼                       │
+│                   │                      │
+│  SQL Queries      │   REST API (HTTP)    │
+│                   ▼                      │
 │   ┌───────────────┴─────────────────────┐│
 │   │    POSTGRES 16                      ││
 │   │  Porto: 5432 | Dados: pauta, voto   ││
 │   └─────────────────────────────────────┘│
-│                 ▲                       │
-│                 │  Volumes:               │
+│                 ▲                        │
+│                 │  Volumes:              │
 │   ┌─────────────┴───────────────────────┐│
 │   │ postgres_data (dados persistentes)  ││
 │   │ node_modules (dependências frontend)││
 │   │ backend jar / código fonte          ││
 │   └─────────────────────────────────────┘│
-│                └───────────────────────┘│
-├─────────────────────────────────────────┤
-│  Ciclo: docker compose up --build       │
-│  ← Recria todos os containers          │
-└─────────────────────────────────────────┘
+│                                          │
+├──────────────────────────────────────────┤
+│  Ciclo: docker compose up --build        │
+│  ← Recria todos os containers            │
+└──────────────────────────────────────────┘
 ```
 
 ### 5.2. Via Local (Separado)
 
 ```
-┌───────────────────────┐      ┌───────────────────────┐
-│   BACKEND (Local)      │      │   FRONTEND (Local)    │
-│  (porta 8080)          │      │  (porta 4200)          │
-│  mvn spring-boot:run   │      │  ng serve --host 0.0.0.0│
-│  (Java 25 + Spring)    │      │  (Angular 19 + Material)│
-├───────────────────────┼──────┤───────────────────────┤
-│  Comunicação via      │      │  Acessar em:          │
-│  http://localhost:8080/api/v1 │  http://localhost:4200 │
-└───────────────────────┘      └───────────────────────┘
+┌───────────────────────────────┐      ┌─────────────────────────┐
+│   BACKEND (Local)             │      │     FRONTEND (Local)    │
+│  (porta 8080)                 │      │   (porta 4200)          │
+│  mvn spring-boot:run          │      │  ng serve --host 0.0.0.0│
+│  (Java 25 + Spring)           │      │  (Angular 19 + Material)│
+├────────────────────────────── ┼──────┤─────────────────────────┤
+│   Comunicação via             │      │   Acessar em:           │
+│  http://localhost:8080/api/v1 │      │   http://localhost:4200 │
+└───────────────────────────────┘      └─────────────────────────┘
 ```
 
 ---
