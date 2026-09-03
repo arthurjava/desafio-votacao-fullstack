@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS pauta (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    descricao VARCHAR(1000),
+    criada_em TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pauta_titulo ON pauta(titulo);

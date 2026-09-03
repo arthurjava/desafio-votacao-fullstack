@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS sessao_votacao (
+    id SERIAL PRIMARY KEY,
+    pauta_id INTEGER NOT NULL,
+    aberta_em TIMESTAMP NOT NULL DEFAULT NOW(),
+    encerra_em TIMESTAMP NOT NULL,
+    CONSTRAINT fk_sessao_pauta FOREIGN KEY (pauta_id) REFERENCES pauta(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessao_pauta ON sessao_votacao(pauta_id);
+CREATE INDEX IF NOT EXISTS idx_sessao_encerramento ON sessao_votacao(encerra_em);
