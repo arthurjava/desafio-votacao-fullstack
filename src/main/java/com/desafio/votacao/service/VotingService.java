@@ -94,7 +94,7 @@ public VotingService(PautaRepository pautaRepository,
         StatusVotacao statusVotacao = associadoClient.consultar(associadoId);
         switch (statusVotacao) {
             case CPF_INVALIDO:
-                throw new EntidadeNaoEncontradaException("Associado com CPF inválido");
+                throw new CpfInvalidoException(associadoId);
             case UNABLE_TO_VOTE:
                 throw new VotacaoDuplicadaException(pautaId, associadoId);
             case ABLE_TO_VOTE:
