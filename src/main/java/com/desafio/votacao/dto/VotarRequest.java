@@ -1,7 +1,16 @@
 package com.desafio.votacao.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class VotarRequest {
+
+    @NotNull(message = "ID do associado é obrigatório")
+    @Size(max = 255, message = "ID do associado deve ter no máximo 255 caracteres")
     private String associadoId;
+
+    @NotNull(message = "Opção de voto é obrigatória")
+    @Size(max = 10, message = "Opção de voto deve ter no máximo 10 caracteres")
     private String voto;
 
     public VotarRequest() {

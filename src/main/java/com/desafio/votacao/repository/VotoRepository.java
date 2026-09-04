@@ -14,8 +14,5 @@ public interface VotoRepository extends JpaRepository<Voto, Long> {
     @Query("SELECT COUNT(v) FROM Voto v WHERE v.pautaId = :pautaId")
     long countByPautaId(@Param("pautaId") Long pautaId);
 
-    @Query("SELECT COUNT(v) FROM Voto v WHERE v.pautaId = :pautaId")
-    long countAllByPautaId(@Param("pautaId") Long pautaId);
-
     boolean existsByPautaIdAndAssociadoId(Long pautaId, String associadoId);
 }

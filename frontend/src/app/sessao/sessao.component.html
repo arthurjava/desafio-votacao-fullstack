@@ -1,1 +1,17 @@
-<p>sessao works!</p>
+<div class="sessao-container">
+  <h2>Abrir Sessão de Votação</h2>
+  
+  <div class="form-group">
+    <label>Duração (segundos):</label>
+    <input type="number" [(ngModel)]="duracaoSegundos" min="1" placeholder="60">
+  </div>
+  
+  <button class="btn-abrir" (click)="abrirSessao()">Abrir Sessão</button>
+  
+  <div *ngIf="sessao" class="sessao-info">
+    <h3>Sessão Aberta</h3>
+    <p>Pauta ID: {{ sessao.pautaId }}</p>
+    <p>Aberta em: {{ sessao.abertaEm | date:'short' }}</p>
+    <p>Encerra em: {{ sessao.encerraEm | date:'short' }}</p>
+  </div>
+</div>

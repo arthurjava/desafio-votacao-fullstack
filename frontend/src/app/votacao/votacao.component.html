@@ -1,1 +1,29 @@
-<p>votacao works!</p>
+<div class="votacao-container">
+  <h2>Sessão de Votação</h2>
+  
+  <div class="form-group">
+    <label>Associado ID:</label>
+    <input type="text" [(ngModel)]="associadoId" placeholder="ID do associado" required>
+  </div>
+  
+  <div class="form-group">
+    <label>Opção de Voto:</label>
+    <select [(ngModel)]="votoOpcao" required>
+      <option value="">Selecione</option>
+      <option value="SIM">SIM</option>
+      <option value="NAO">NÃO</option>
+    </select>
+  </div>
+  
+  <button class="btn-votar" (click)="registrarVoto()" [disabled]="!associadoId || !votoOpcao">
+    Registrar Voto
+  </button>
+  
+  <div *ngIf="resultado" class="resultado">
+    <h3>Resultado:</h3>
+    <p>SIM: {{ resultado.sim }}</p>
+    <p>NÃO: {{ resultado.nao }}</p>
+    <p>Total: {{ resultado.total }}</p>
+    <p>Status: {{ resultado.resultado }}</p>
+  </div>
+</div>

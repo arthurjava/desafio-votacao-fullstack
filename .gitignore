@@ -1,0 +1,32 @@
+# Arquivos gerados/localmente que não devem ser versionados
+*.jar
+*.war
+*.ear
+*.class
+*.yml
+*.yaml
+
+# Arquivos de configuração locais
+local_settings.yml
+application-local.yml
+
+# Documentos de plano e objetivo (não versionar)
+plano.md
+desafio.md
+
+# Diretórios
+target/
+.mvn/
+*.iml
+
+# Frontend
+frontend/node_modules/
+frontend/.angular/
+
+# Docker
+.dockerinit
+docker-compose.override.yml
+
+# System
+.DS_Store
+Thumbs.db

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -37,18 +38,27 @@ public VotingService(PautaRepository pautaRepository,
         this.associadoClient = associadoClient;
     }
 
-    public VotingService() {
-        this.pautaRepository = null;
-        this.sessaoVotacaoRepository = null;
-        this.votoRepository = null;
-        this.associadoClient = null;
-    }
+    
 
+    /**
+     * Busca uma pauta pelo seu ID.
+     *
+     * @param id identificador da pauta
+     * @return objeto Pauta encontrado
+     * @throws PautaNaoEncontradaException se a pauta não existir
+     */
     public Pauta pesquisarPauta(Long id) {
         return pautaRepository.findById(id)
                 .orElseThrow(() -> new PautaNaoEncontradaException(id));
     }
 
+    /**
+     * Cria uma nova pauta para votação.
+     *
+     * @param request dados do pedido de criação da pauta
+     * @return resposta contendo os dados da pauta criada
+     * @throws TituloJaExisteException se já existir pauta com o mesmo título
+     */
     public PautaResponse criarPauta(CriarPautaRequest request) {
         validarTituloNovo(request.getTitulo());
         Pauta pauta = new Pauta();
@@ -59,6 +69,15 @@ public VotingService(PautaRepository pautaRepository,
         return new PautaResponse(pauta.getId(), pauta.getTitulo(), pauta.getDescricao(), pauta.getCriadaEm());
     }
 
+    /**
+     * Abre uma sessão de votação para a pauta especificada.
+     *
+     * @param pautaId identificador da pauta
+     * @param request dados da sessão de votação (duracaoEmSegundos é opcional, usa 60s por padrão)
+     * @return resposta contendo os dados da sessão aberta
+     * @throws PautaNaoEncontradaException se a pauta não existir
+     * @throws SessaoJaExistenteException se já existir sessão para esta pauta
+     */
     @Transactional
     public SessaoResponse abrirSessao(Long pautaId, SessaoRequest request) {
         Pauta pauta = pautaRepository.findById(pautaId)
@@ -69,9 +88,7 @@ public VotingService(PautaRepository pautaRepository,
             throw new SessaoJaExistenteException(pautaId);
         }
 
-        Integer duracao = request.getDuracaoEmSegundos() != null
-                ? request.getDuracaoEmSegundos()
-                : 60;
+        Integer duracao = Objects.requireNonNullElse(request.getDuracaoEmSegundos(), 60);
 
         LocalDateTime encerraEm = LocalDateTime.now().plusSeconds(duracao);
         SessaoVotacao sessao = new SessaoVotacao();
@@ -84,6 +101,18 @@ public VotingService(PautaRepository pautaRepository,
                 sessao.getAbertaEm(), sessao.getEncerraEm());
     }
 
+    /**
+     * Registra o voto de um associado em uma pauta.
+     *
+     * @param pautaId identificador da pauta
+     * @param request dados do voto (associadoId e opcao de voto)
+     * @return resposta contendo os dados do voto registrado
+     * @throws CpfInvalidoException se o CPF do associado for inválido
+     * @throws VotacaoDuplicadaException se o associado já tiver votado nesta pauta
+     * @throws SessaoNaoEncontradaException se a sessão de votação não for encontrada ou estiver encerrada
+     * @throws InvalidVoteOptionException se a opção de voto for inválida
+     * @throws AssociadoIdInvalidoException se o ID do associado for inválido ou ausente
+     */
     @Transactional
     public VotosRegistrarResponse votar(Long pautaId, VotarRequest request) {
         validarVotoRequest(request);
@@ -134,12 +163,19 @@ public VotingService(PautaRepository pautaRepository,
                 voto.getAssociadoId(), voto.getVoto().name(), voto.getCriadoEm());
     }
 
+    /**
+     * Obtém o resultado da votação para uma pauta.
+     *
+     * @param pautaId identificador da pauta
+     * @return resposta contendo o total de votos SIM, NAO e o resultado final
+     * @throws PautaNaoEncontradaException se a pauta não existir
+     */
     public ResultadoResponse resultado(Long pautaId) {
         Pauta pauta = pautaRepository.findById(pautaId)
                 .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
 
         long sim = votoRepository.countByPautaId(pautaId);
-        long total = votoRepository.countAllByPautaId(pautaId);
+        long total = votoRepository.countByPautaId(pautaId); // Conta todos os votos (SIM + NAO)
         long nao = total - sim;
 
         String resultado = (total > 0 && sim > nao) ? "APROVADA" :

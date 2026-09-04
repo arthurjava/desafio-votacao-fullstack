@@ -1,1 +1,29 @@
-<p>pautas works!</p>
+<div class="pautas-container">
+  <h2>Pautas</h2>
+  
+  <div class="form-group">
+    <label>Título:</label>
+    <input type="text" [(ngModel)]="novoTitulo" placeholder="Título da pauta" required>
+  </div>
+  
+  <div class="form-group">
+    <label>Descrição:</label>
+    <input type="text" [(ngModel)]="novaDescricao" placeholder="Descrição da pauta">
+  </div>
+  
+  <button class="btn-criar" (click)="criarPauta()">Criar Pauta</button>
+  
+  <div *ngIf="pautas.length > 0" class="pautas-list">
+    <h3>Pautas Cadastradas</h3>
+    <ul>
+      <li *ngFor="let pauta of pautas">
+        <span>{{ pauta.titulo }}</span>
+        <span *ngIf="pauta.sessoes?.length > 0"> - Sessão: {{ pauta.sessoes.length }}</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div *ngIf="pautas.length === 0" class="empty-state">
+    <p>Nenhuma pauta encontrada.</p>
+  </div>
+</div>
