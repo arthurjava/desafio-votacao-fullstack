@@ -8,7 +8,7 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class PautaService {
-  private apiUrl = 'http://localhost:8080/api/v1/pautas';
+  private apiUrl = 'http://localhost:8081/api/v1/pautas';
 
   constructor(private http: HttpClient) {}
 

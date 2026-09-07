@@ -52,7 +52,7 @@ public class PautaController {
             content = @Content(schema = @Schema(implementation = PautaResponse.class)))
     @ApiResponse(responseCode = "404", description = "Pauta não encontrada")
     @GetMapping("/{id}")
-    public ResponseEntity<PautaResponse> buscarPauta(@PathVariable Long id) {
+    public ResponseEntity<PautaResponse> buscarPauta(@PathVariable("id") Long id) {
         Pauta pauta = votingService.pesquisarPauta(id);
         return ResponseEntity.ok(new PautaResponse(pauta.getId(), pauta.getTitulo(), pauta.getDescricao(), pauta.getCriadaEm()));
     }
@@ -63,7 +63,7 @@ public class PautaController {
     @ApiResponse(responseCode = "404", description = "Pauta não encontrada")
     @ApiResponse(responseCode = "409", description = "Já existe sessão para esta pauta")
     @PostMapping("/{id}/sessao")
-    public ResponseEntity<SessaoResponse> abrirSessao(@PathVariable Long id,
+    public ResponseEntity<SessaoResponse> abrirSessao(@PathVariable("id") Long id,
                                                       @RequestBody(required = false) SessaoRequest request) {
         SessaoResponse response = votingService.abrirSessao(id, request);
         return ResponseEntity.ok(response);
@@ -76,7 +76,7 @@ public class PautaController {
     @ApiResponse(responseCode = "404", description = "Pauta ou sessão não encontrada")
     @ApiResponse(responseCode = "409", description = "Voto duplicado ou sessão encerrada")
     @PostMapping("/{id}/votos")
-    public ResponseEntity<VotosRegistrarResponse> registrarVoto(@PathVariable Long id,
+    public ResponseEntity<VotosRegistrarResponse> registrarVoto(@PathVariable("id") Long id,
                                                                 @Valid @RequestBody VotarRequest request) {
         VotosRegistrarResponse response = votingService.votar(id, request);
         return ResponseEntity.ok(response);
@@ -87,7 +87,7 @@ public class PautaController {
             content = @Content(schema = @Schema(implementation = ResultadoResponse.class)))
     @ApiResponse(responseCode = "404", description = "Pauta não encontrada")
     @GetMapping("/{id}/resultado")
-    public ResponseEntity<ResultadoResponse> obterResultado(@PathVariable Long id) {
+    public ResponseEntity<ResultadoResponse> obterResultado(@PathVariable("id") Long id) {
         ResultadoResponse response = votingService.resultado(id);
         return ResponseEntity.ok(response);
     }

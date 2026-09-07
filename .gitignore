@@ -9,6 +9,9 @@
 # Arquivos de configuração locais
 local_settings.yml
 application-local.yml
+.env
+.env.*
+!.env.example
 
 # Documentos de plano e objetivo (não versionar)
 plano.md

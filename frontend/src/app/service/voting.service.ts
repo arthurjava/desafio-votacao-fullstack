@@ -9,7 +9,7 @@ import { PautaResponse } from '../dto/PautaResponse';
   providedIn: 'root'
 })
 export class VotingService {
-  private apiUrl = 'http://localhost:8080/api/v1/pautas';
+  private apiUrl = 'http://localhost:8081/api/v1/pautas';
 
   constructor(private http: HttpClient) {}
 
