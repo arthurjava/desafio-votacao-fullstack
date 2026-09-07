@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { VotoVoteOpcao } from '../entity/Voto';
+import { PautaResponse } from '../dto/PautaResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,12 @@ export class VotingService {
 
   constructor(private http: HttpClient) {}
 
-  buscarPauta(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}`);
+  listarPautas(): Observable<PautaResponse[]> {
+    return this.http.get<PautaResponse[]>(`${this.apiUrl}`);
+  }
+
+  buscarPauta(id: number): Observable<PautaResponse> {
+    return this.http.get<PautaResponse>(`${this.apiUrl}/${id}`);
   }
 
   criarPauta(request: any): Observable<any> {

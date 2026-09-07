@@ -1,7 +1,10 @@
 package com.desafio.votacao.integration;
 
+import org.springframework.stereotype.Component;
+
 import java.util.UUID;
 
+@Component
 public class FakeAssociadoClient implements AssociadoClient {
 
     @Override
@@ -9,8 +12,13 @@ public class FakeAssociadoClient implements AssociadoClient {
         if (cpf == null || cpf.trim().isEmpty() || !isValidCPF(cpf)) {
             return StatusVotacao.CPF_INVALIDO;
         }
-        // Simula aleatoriamente se o usuário pode votar
-        boolean ableToVote = Math.random() > 0.5;
+        // Simula aleatoriedade determinística baseada no hash do CPF.
+        // CPFs distintos produzem o mesmo resultado em chamadas repetidas (idempotência).
+        int hash = 0;
+        for (int i = 0; i < cpf.length(); i++) {
+            hash = (hash * 31) + Character.getNumericValue(cpf.charAt(i));
+        }
+        boolean ableToVote = Math.abs(hash) % 2 == 0;
         if (ableToVote) {
             return StatusVotacao.ABLE_TO_VOTE;
         } else {

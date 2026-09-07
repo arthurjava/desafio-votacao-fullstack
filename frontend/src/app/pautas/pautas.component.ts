@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { VotingService } from '../service/voting.service';
 import { PautaResponse } from '../dto/PautaResponse';
+import { CriarPautaRequest } from '../dto/CriarPautaRequest';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-pautas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, DatePipe],
   templateUrl: './pautas.component.html',
   styleUrl: './pautas.component.css'
 })
-export class PautasComponent {
+export class PautasComponent implements OnInit {
   novoTitulo: string = '';
   novaDescricao: string = '';
   pautas: PautaResponse[] = [];
@@ -23,11 +26,9 @@ export class PautasComponent {
   }
 
   carregarPautas(): void {
-    // Buscar todas as pautas - usaremos o endpoint de listagem ou consultar uma a uma
-    // Por enquanto, vamos buscar pauta de ID 1
-    this.votingService.pesquisarPauta(1).subscribe({
-      next: (pauta) => {
-        this.pautas = [pauta];
+    this.votingService.listarPautas().subscribe({
+      next: (pautas) => {
+        this.pautas = pautas;
       },
       error: (err) => {
         console.error('Erro ao carregar pautas', err);
@@ -42,7 +43,7 @@ export class PautasComponent {
       return;
     }
 
-    const request = {
+    const request: CriarPautaRequest = {
       titulo: this.novoTitulo,
       descricao: this.novaDescricao || ''
     };

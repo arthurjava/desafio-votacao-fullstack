@@ -2,6 +2,16 @@
   <h2>Sessão de Votação</h2>
   
   <div class="form-group">
+    <label>Pauta:</label>
+    <select [(ngModel)]="pautaId" required>
+      <option value="" disabled>Selecione uma pauta</option>
+      <option *ngFor="let pauta of pautas" [value]="pauta.id">
+        {{ pauta.titulo }} (ID: {{ pauta.id }})
+      </option>
+    </select>
+  </div>
+  
+  <div class="form-group">
     <label>Associado ID:</label>
     <input type="text" [(ngModel)]="associadoId" placeholder="ID do associado" required>
   </div>
@@ -15,15 +25,29 @@
     </select>
   </div>
   
-  <button class="btn-votar" (click)="registrarVoto()" [disabled]="!associadoId || !votoOpcao">
-    Registrar Voto
+  <button class="btn-votar" (click)="registrarVoto()" [disabled]="!pautaId || !associadoId || !votoOpcao || loading">
+    {{ loading ? 'Registrando...' : 'Registrar Voto' }}
   </button>
   
   <div *ngIf="resultado" class="resultado">
-    <h3>Resultado:</h3>
-    <p>SIM: {{ resultado.sim }}</p>
-    <p>NÃO: {{ resultado.nao }}</p>
-    <p>Total: {{ resultado.total }}</p>
-    <p>Status: {{ resultado.resultado }}</p>
+    <h3>Resultado da Votação</h3>
+    <div class="resultado-grid">
+      <div class="resultado-item">
+        <span class="label">SIM</span>
+        <span class="valor">{{ resultado.sim }}</span>
+      </div>
+      <div class="resultado-item">
+        <span class="label">NÃO</span>
+        <span class="valor">{{ resultado.nao }}</span>
+      </div>
+      <div class="resultado-item">
+        <span class="label">Total</span>
+        <span class="valor">{{ resultado.total }}</span>
+      </div>
+      <div class="resultado-item resultado-status">
+        <span class="label">Status</span>
+        <span class="valor" [ngClass]="resultado.resultado">{{ resultado.resultado }}</span>
+      </div>
+    </div>
   </div>
 </div>

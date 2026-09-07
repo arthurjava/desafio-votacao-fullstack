@@ -12,10 +12,13 @@ import com.desafio.votacao.repository.PautaRepository;
 import com.desafio.votacao.repository.SessaoVotacaoRepository;
 import com.desafio.votacao.repository.VotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,15 +26,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VotingService {
 
+    private static final Logger log = LoggerFactory.getLogger(VotingService.class);
+
     private final PautaRepository pautaRepository;
     private final SessaoVotacaoRepository sessaoVotacaoRepository;
     private final VotoRepository votoRepository;
     private final AssociadoClient associadoClient;
 
-public VotingService(PautaRepository pautaRepository,
-                     SessaoVotacaoRepository sessaoVotacaoRepository,
-                     VotoRepository votoRepository,
-                     AssociadoClient associadoClient) {
+    public VotingService(PautaRepository pautaRepository,
+                         SessaoVotacaoRepository sessaoVotacaoRepository,
+                         VotoRepository votoRepository,
+                         AssociadoClient associadoClient) {
         this.pautaRepository = pautaRepository;
         this.sessaoVotacaoRepository = sessaoVotacaoRepository;
         this.votoRepository = votoRepository;
@@ -53,6 +58,17 @@ public VotingService(PautaRepository pautaRepository,
     }
 
     /**
+     * Lista todas as pautas cadastradas.
+     *
+     * @return lista de pautas
+     */
+    public List<PautaResponse> listarPautas() {
+        return pautaRepository.findAll().stream()
+                .map(p -> new PautaResponse(p.getId(), p.getTitulo(), p.getDescricao(), p.getCriadaEm()))
+                .toList();
+    }
+
+    /**
      * Cria uma nova pauta para votação.
      *
      * @param request dados do pedido de criação da pauta
@@ -66,6 +82,7 @@ public VotingService(PautaRepository pautaRepository,
         pauta.setDescricao(request.getDescricao());
         pauta.setCriadaEm(LocalDateTime.now());
         pauta = pautaRepository.save(pauta);
+        log.info("Pauta criada: id={}, titulo='{}'", pauta.getId(), pauta.getTitulo());
         return new PautaResponse(pauta.getId(), pauta.getTitulo(), pauta.getDescricao(), pauta.getCriadaEm());
     }
 
@@ -88,7 +105,8 @@ public VotingService(PautaRepository pautaRepository,
             throw new SessaoJaExistenteException(pautaId);
         }
 
-        Integer duracao = Objects.requireNonNullElse(request.getDuracaoEmSegundos(), 60);
+        SessaoRequest req = request != null ? request : new SessaoRequest();
+        Integer duracao = Objects.requireNonNullElse(req.getDuracaoEmSegundos(), 60);
 
         LocalDateTime encerraEm = LocalDateTime.now().plusSeconds(duracao);
         SessaoVotacao sessao = new SessaoVotacao();
@@ -97,6 +115,7 @@ public VotingService(PautaRepository pautaRepository,
         sessao.setEncerraEm(encerraEm);
         sessao = sessaoVotacaoRepository.save(sessao);
 
+        log.info("Sessão de votação aberta: pautaId={}, sessaoId={}, duracao={}s", pautaId, sessao.getId(), duracao);
         return new SessaoResponse(sessao.getId(), sessao.getPautaId(),
                 sessao.getAbertaEm(), sessao.getEncerraEm());
     }
@@ -125,7 +144,7 @@ public VotingService(PautaRepository pautaRepository,
             case CPF_INVALIDO:
                 throw new CpfInvalidoException(associadoId);
             case UNABLE_TO_VOTE:
-                throw new VotacaoDuplicadaException(pautaId, associadoId);
+                throw new AssociadoNaoHabilitadoException(associadoId);
             case ABLE_TO_VOTE:
                 // Continuar com o registro do voto
                 break;
@@ -137,11 +156,12 @@ public VotingService(PautaRepository pautaRepository,
             throw new VotacaoDuplicadaException(pautaId, associadoId);
         }
 
-        SessaoVotacao sessao = sessaoVotacaoRepository.findAtivaByPautaId(pautaId)
+        LocalDateTime agora = LocalDateTime.now();
+        SessaoVotacao sessao = sessaoVotacaoRepository.findAtivaByPautaId(pautaId, agora)
                 .orElseThrow(() -> new SessaoNaoEncontradaException(pautaId));
 
-        if (LocalDateTime.now().isBefore(sessao.getAbertaEm()) ||
-                LocalDateTime.now().isAfter(sessao.getEncerraEm())) {
+        if (agora.isBefore(sessao.getAbertaEm()) ||
+                agora.isAfter(sessao.getEncerraEm())) {
             throw new SessaoEncerradaException(pautaId);
         }
 
@@ -159,6 +179,7 @@ public VotingService(PautaRepository pautaRepository,
         voto.setCriadoEm(LocalDateTime.now());
         voto = votoRepository.save(voto);
 
+        log.info("Voto registrado: pautaId={}, associadoId={}, voto={}", pautaId, associadoId, votoEnum);
         return new VotosRegistrarResponse(voto.getId(), voto.getPautaId(),
                 voto.getAssociadoId(), voto.getVoto().name(), voto.getCriadoEm());
     }
@@ -174,14 +195,22 @@ public VotingService(PautaRepository pautaRepository,
         Pauta pauta = pautaRepository.findById(pautaId)
                 .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
 
-        long sim = votoRepository.countByPautaId(pautaId);
-        long total = votoRepository.countByPautaId(pautaId); // Conta todos os votos (SIM + NAO)
-        long nao = total - sim;
+        long sim = votoRepository.countByPautaIdAndVoto(pautaId, Voto.VoteOpcao.SIM);
+        long nao = votoRepository.countByPautaIdAndVoto(pautaId, Voto.VoteOpcao.NAO);
+        long total = sim + nao;
 
-        String resultado = (total > 0 && sim > nao) ? "APROVADA" :
-                (total > 0 && nao > sim) ? "REPROVADA" :
-                (total > 0 && sim == nao) ? "EMPATE" : "INDEFINIDA";
+        String resultado;
+        if (total == 0) {
+            resultado = "INDEFINIDA";
+        } else if (sim > nao) {
+            resultado = "APROVADA";
+        } else if (nao > sim) {
+            resultado = "REPROVADA";
+        } else {
+            resultado = "EMPATE";
+        }
 
+        log.info("Resultado da votação: pautaId={}, sim={}, nao={}, total={}, resultado={}", pautaId, sim, nao, total, resultado);
         return new ResultadoResponse(pautaId, sim, nao, total, resultado);
     }
 

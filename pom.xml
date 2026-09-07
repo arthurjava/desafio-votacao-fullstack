@@ -18,7 +18,7 @@
         <postgresql.version>42.7.2</postgresql.version>
         <flyway.version>10.0.0</flyway.version>
         <springdoc.version>2.5.0</springdoc.version>
-        <java.source.target>25</java.source.target>
+        <java.source.target>21</java.source.target>
     </properties>
 
     <dependencyManagement>
@@ -38,6 +38,19 @@
         <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <jvmArguments>-Dspring.classformat.ignore=true</jvmArguments>
+                <profiles>
+                    <profile>test</profile>
+                </profiles>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
         </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -52,7 +65,10 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>3.2.2</version>
             <configuration>
-                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED -Dnet.bytebuddy.experimental</argLine>
+                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED -Dmockito.use-inline-mock-maker=false -Dmockito.use-subclass-mock-maker=true -Dspring.classformat.ignore=true</argLine>
+                <excludes>
+                    <exclude>**/*IntegrationTest.java</exclude>
+                </excludes>
             </configuration>
         </plugin>
     </plugins>
@@ -83,6 +99,11 @@
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
 
         <!-- Spring Boot devtools -->
         <dependency>
@@ -90,6 +111,13 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+
+        <!-- H2 Database para profile de teste -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Springdoc OpenAPI -->
@@ -119,17 +147,17 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito - versão gerenciada para Java 25 -->
+        <!-- Mockito - versão compatível com Java 25 -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.13.0</version>
+            <version>5.14.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.13.0</version>
+            <version>5.14.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

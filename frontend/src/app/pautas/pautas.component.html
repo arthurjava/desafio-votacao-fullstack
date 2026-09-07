@@ -15,12 +15,29 @@
   
   <div *ngIf="pautas.length > 0" class="pautas-list">
     <h3>Pautas Cadastradas</h3>
-    <ul>
-      <li *ngFor="let pauta of pautas">
-        <span>{{ pauta.titulo }}</span>
-        <span *ngIf="pauta.sessoes?.length > 0"> - Sessão: {{ pauta.sessoes.length }}</span>
-      </li>
-    </ul>
+    <table class="pautas-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Descrição</th>
+          <th>Criada em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pauta of pautas">
+          <td>{{ pauta.id }}</td>
+          <td>{{ pauta.titulo }}</td>
+          <td>{{ pauta.descricao }}</td>
+          <td>{{ pauta.criadaEm | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="actions">
+            <a [routerLink]="['/pautas', pauta.id, 'sessao']" class="btn-action">Abrir Sessão</a>
+            <a [routerLink]="['/pautas', pauta.id, 'votar']" class="btn-action btn-votar">Votar</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   
   <div *ngIf="pautas.length === 0" class="empty-state">

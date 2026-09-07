@@ -2,16 +2,26 @@
   <h2>Abrir Sessão de Votação</h2>
   
   <div class="form-group">
+    <label>Pauta:</label>
+    <select [(ngModel)]="selectedPautaId" required>
+      <option value="" disabled>Selecione uma pauta</option>
+      <option *ngFor="let pauta of pautas" [value]="pauta.id">
+        {{ pauta.titulo }} (ID: {{ pauta.id }})
+      </option>
+    </select>
+  </div>
+  
+  <div class="form-group">
     <label>Duração (segundos):</label>
     <input type="number" [(ngModel)]="duracaoSegundos" min="1" placeholder="60">
   </div>
   
-  <button class="btn-abrir" (click)="abrirSessao()">Abrir Sessão</button>
+  <button class="btn-abrir" (click)="abrirSessao()" [disabled]="!selectedPautaId">Abrir Sessão</button>
   
   <div *ngIf="sessao" class="sessao-info">
     <h3>Sessão Aberta</h3>
     <p>Pauta ID: {{ sessao.pautaId }}</p>
-    <p>Aberta em: {{ sessao.abertaEm | date:'short' }}</p>
-    <p>Encerra em: {{ sessao.encerraEm | date:'short' }}</p>
+    <p>Aberta em: {{ sessao.abertaEm | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+    <p>Encerra em: {{ sessao.encerraEm | date:'dd/MM/yyyy HH:mm:ss' }}</p>
   </div>
 </div>

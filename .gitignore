@@ -13,6 +13,9 @@ application-local.yml
 # Documentos de plano e objetivo (não versionar)
 plano.md
 desafio.md
+RELATORIO_ANALISE_E_PLANO_DE_ACAO.md
+run.bat
+.github/
 
 # Diretórios
 target/

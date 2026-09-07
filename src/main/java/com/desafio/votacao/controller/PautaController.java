@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/pautas")
@@ -26,6 +27,15 @@ public class PautaController {
 
     public PautaController(VotingService votingService) {
         this.votingService = votingService;
+    }
+
+    @Operation(summary = "Listar todas as pautas", description = "Retorna a lista de todas as pautas cadastradas")
+    @ApiResponse(responseCode = "200", description = "Lista de pautas",
+            content = @Content(schema = @Schema(implementation = PautaResponse.class)))
+    @GetMapping
+    public ResponseEntity<List<PautaResponse>> listarPautas() {
+        List<PautaResponse> pautas = votingService.listarPautas();
+        return ResponseEntity.ok(pautas);
     }
 
     @Operation(summary = "Criar uma nova pauta", description = "Cadastra uma nova pauta para votação")
